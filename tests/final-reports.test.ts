@@ -1,0 +1,11 @@
+import { describe, expect, it, vi } from "vitest";
+import { getFinalReport, PaymentRecommendationError } from "@/lib/final-reports";
+
+const actor = { id: "gaa-1", role: "GAA" as const, active: true };
+const recommendation = (id: string, location: string, cleaning: string, additional: string) => ({ id, status: "FINALIZED", remarks: null, createdAt: new Date(), finalizedAt: new Date(), finalizationRemarks: null, overallRecommendedPayment: String(Number(cleaning) + Number(additional)), locationCleaningTotal: cleaning, locationAttendanceTotal: "0", locationGrandTotal: String(Number(cleaning) + Number(additional)), createdBy: { name: "GAA" }, finalizedBy: { name: "GAA" }, report: { id: `report-${id}`, month: 8, year: 2026, status: "ADMIN_APPROVED", isComplete: true, processingError: null, attendanceHistory: [], location: { id: location, code: location, name: location }, administrationReviews: [], taskSummaries: [] }, taskCalculations: [], additionalTasks: Number(additional) ? [{ id: "additional", locationId: location, taskName: "Extra", category: "DAILY", allocatedAmount: additional, completionPercentage: "100", recommendedAmount: additional, remark: "Added" }] : [] });
+
+describe("final report eligibility and aggregation", () => {
+  it("aggregates all finalized locations", async () => { const first = recommendation("one", "SCI", "100", "10"); const second = recommendation("two", "LIB", "200", "0"); const prisma = { paymentRecommendation: { findMany: vi.fn(async () => [first, second]), count: vi.fn(async () => 2) }, activityLog: { findMany: vi.fn(async () => []) } }; const result = await getFinalReport(prisma as never, actor, 2026, 8); expect(result.recommendations).toHaveLength(2); expect(result.totals.overall.toFixed(2)).toBe("310.00"); });
+  it("blocks a month with an unfinalized approved recommendation", async () => { const prisma = { paymentRecommendation: { findMany: vi.fn(async () => [recommendation("one", "SCI", "100", "0")]), count: vi.fn(async () => 2) } }; await expect(getFinalReport(prisma as never, actor, 2026, 8)).rejects.toBeInstanceOf(PaymentRecommendationError); });
+  it("blocks non-GAA access", async () => { await expect(getFinalReport({} as never, { id: "admin", role: "ADMINISTRATION_OFFICER", active: true }, 2026, 8)).rejects.toMatchObject({ status: 403 }); });
+});

@@ -1,0 +1,7 @@
+import { notFound, redirect } from "next/navigation";
+import { AppShell } from "@/app/_components/app-shell";
+import { getAuthContext } from "@/lib/auth";
+import { getAuditLog } from "@/lib/system-administration";
+import { prisma } from "@/lib/prisma";
+export default async function AuditDetailPage({ params }: { params: Promise<{ id: string }> }) { const { sessionUser, appUser } = await getAuthContext(); if (!sessionUser) redirect("/login"); if (!appUser || appUser.role !== "GAA") return <main className="p-8">Access denied.</main>; const log = await getAuditLog(prisma, appUser, (await params).id); if (!log) notFound(); return <AppShell user={appUser}><div className="mx-auto max-w-4xl"><section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"><p className="eyebrow">Audit Detail</p><h1 className="mt-2 text-2xl font-semibold">{log.action}</h1><dl className="mt-6 grid gap-4 sm:grid-cols-2"><Meta label="User" value={`${log.user.name} (${log.user.role})`} /><Meta label="Date" value={log.timestamp.toLocaleString()} /><Meta label="Entity" value={`${log.entityType} · ${log.entityId}`} /><Meta label="Description" value={log.description ?? "-"} /></dl><pre className="mt-6 overflow-x-auto rounded-2xl bg-slate-950 p-4 text-xs text-slate-100">{JSON.stringify(log.metadata, null, 2)}</pre></section></div></AppShell>; }
+function Meta({ label, value }: { label: string; value: string }) { return <div><dt className="label">{label}</dt><dd className="text-sm text-slate-700">{value}</dd></div>; }

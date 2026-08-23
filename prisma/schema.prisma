@@ -1,0 +1,612 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  GAA
+  EVALUATING_OFFICER
+  PHI
+  ADMINISTRATION_OFFICER
+  VICE_CHANCELLOR
+}
+
+enum TaskCategory {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+enum TaskFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+enum EvaluationResult {
+  P
+  X
+  NA
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+}
+
+enum ReportStatus {
+  DRAFT
+  SUBMITTED
+  RESUBMITTED
+  CORRECTION_REQUESTED
+  ADMIN_APPROVED
+  ADMIN_REJECTED
+  VC_PENDING
+  VC_APPROVED
+  VC_REJECTED
+  CLARIFICATION_REQUESTED
+}
+
+enum AdministrationDecision {
+  APPROVE
+  CORRECTION
+  REJECT
+}
+
+enum PaymentRecommendationStatus {
+  DRAFT
+  FINALIZED
+  VC_PENDING
+  VC_APPROVED
+  VC_REJECTED
+  CLARIFICATION_REQUESTED
+}
+
+enum VCDecision {
+  APPROVE
+  REJECT
+  CLARIFICATION
+}
+
+enum ActivityAction {
+  LOGIN
+  LOGOUT
+  USER_CREATED
+  USER_UPDATED
+  USER_ROLE_CHANGED
+  USER_ACTIVATED
+  USER_DEACTIVATED
+  LOCATION_CREATED
+  LOCATION_UPDATED
+  LOCATION_ACTIVATED
+  LOCATION_DEACTIVATED
+  CLEANING_TASK_CREATED
+  CLEANING_TASK_UPDATED
+  CLEANING_TASK_ACTIVATED
+  CLEANING_TASK_DEACTIVATED
+  LOCATION_TASK_CREATED
+  LOCATION_TASK_UPDATED
+  LOCATION_TASK_ACTIVATED
+  LOCATION_TASK_DEACTIVATED
+  EVALUATING_OFFICER_ASSIGNED
+  EVALUATING_OFFICER_ASSIGNMENT_ACTIVATED
+  EVALUATING_OFFICER_ASSIGNMENT_DEACTIVATED
+  PHI_ASSIGNED
+  PHI_ASSIGNMENT_ACTIVATED
+  PHI_ASSIGNMENT_DEACTIVATED
+  DAILY_EVALUATION_UPDATED
+  ATTENDANCE_EVALUATION_CREATED
+  ATTENDANCE_EVALUATION_UPDATED
+  ATTENDANCE_EVALUATION_FINALIZED
+  DAILY_EVALUATION_CREATED
+  DAILY_EVALUATION_FINALIZED
+  DAILY_EVALUATION_LOCKED
+  ATTENDANCE_CREATED
+  ATTENDANCE_FINALIZED
+  ATTENDANCE_LOCKED
+  MONTHLY_REPORT_GENERATED
+  REPORT_SUBMITTED
+  REPORT_RESUBMITTED
+  ADMIN_APPROVED
+  ADMIN_REJECTED
+  CORRECTION_REQUESTED
+  PAYMENT_RECOMMENDATION_CREATED
+  PAYMENT_RECOMMENDATION_SUBMITTED
+  PAYMENT_RECOMMENDATION_FINALIZED
+  FINAL_REPORT_PDF_GENERATED
+  FINAL_REPORT_EXCEL_GENERATED
+  PAYMENT_ALLOCATION_UPDATED
+  ADDITIONAL_TASK_ADDED
+  VC_APPROVED
+  VC_REJECTED
+  CLARIFICATION_REQUESTED
+}
+
+enum NotificationEvent {
+  MONTHLY_REPORT_AUTOMATICALLY_SUBMITTED
+  ADMINISTRATION_APPROVED
+  CORRECTION_REQUESTED
+  ADMINISTRATION_REJECTED
+  PAYMENT_RECOMMENDATION_CREATED
+  PAYMENT_RECOMMENDATION_SUBMITTED
+  PAYMENT_RECOMMENDATION_FINALIZED
+  VC_APPROVED
+  VC_REJECTED
+  VC_REQUESTED_CLARIFICATION
+}
+
+model User {
+  id          String   @id
+  name        String
+  email       String   @unique
+  role        UserRole
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  evaluatingOfficerAssignments EvaluatingOfficerAssignment[]
+  phiAssignments               PHIAssignment[]
+  evaluations                  DailyCleaningEvaluation[]
+  attendances                  WorkerAttendance[]
+  dailyAttendanceEvaluations    DailyAttendanceEvaluation[]
+  administrationReviews        AdministrationReview[]
+  createdRecommendations       PaymentRecommendation[]
+  submittedRecommendations     PaymentRecommendation[] @relation("PaymentRecommendationSubmitter")
+  finalizedRecommendations     PaymentRecommendation[] @relation("PaymentRecommendationFinalizer")
+  taskCalculationChanges       PaymentTaskCalculation[]
+  workerCalculationChanges     PaymentWorkerCalculation[]
+  createdAdditionalTasks       AdditionalCleaningTask[]
+  vcApprovals                  VCApproval[]
+  activityLogs                 ActivityLog[]
+  notifications                Notification[]
+}
+
+model Location {
+  id              String   @id @default(cuid())
+  code            String   @unique
+  name            String
+  minimumWorkers  Int?
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  locationTasks               LocationTask[]
+  workerAssignments           WorkerLocationAssignment[]
+  evaluatingOfficerAssignments EvaluatingOfficerAssignment[]
+  phiAssignments              PHIAssignment[]
+  dailyEvaluations            DailyCleaningEvaluation[]
+  attendances                 WorkerAttendance[]
+  dailyAttendanceEvaluations   DailyAttendanceEvaluation[]
+  monthlyReports              MonthlyEvaluationReport[]
+  additionalCleaningTasks     AdditionalCleaningTask[]
+}
+
+model CleaningTask {
+  id          String        @id @default(cuid())
+  name        String
+  category    TaskCategory
+  frequency   TaskFrequency
+  active      Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  locationTasks LocationTask[]
+}
+
+model LocationTask {
+  id                 String   @id @default(cuid())
+  locationId         String
+  taskId             String
+  frequency          TaskFrequency
+  allocatedAmount    Decimal  @db.Decimal(15, 2)
+  active             Boolean  @default(true)
+  isAdditional       Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  location           Location               @relation(fields: [locationId], references: [id])
+  task               CleaningTask           @relation(fields: [taskId], references: [id])
+  evaluations        DailyCleaningEvaluation[]
+  monthlySummaries   MonthlyTaskSummary[]
+  paymentCalculations PaymentTaskCalculation[]
+
+  @@unique([locationId, taskId])
+  @@index([locationId])
+  @@index([taskId])
+}
+
+model CleaningWorker {
+  id          String   @id @default(cuid())
+  name        String
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  locationAssignments WorkerLocationAssignment[]
+  attendances          WorkerAttendance[]
+  monthlySummaries     MonthlyWorkerSummary[]
+  paymentCalculations  PaymentWorkerCalculation[]
+}
+
+model WorkerLocationAssignment {
+  id              String   @id @default(cuid())
+  workerId        String
+  locationId      String
+  allocatedAmount Decimal  @db.Decimal(15, 2)
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  worker                 CleaningWorker         @relation(fields: [workerId], references: [id])
+  location               Location               @relation(fields: [locationId], references: [id])
+  monthlyWorkerSummaries  MonthlyWorkerSummary[]
+  paymentCalculations     PaymentWorkerCalculation[]
+
+  @@unique([workerId, locationId])
+  @@index([locationId])
+}
+
+model EvaluatingOfficerAssignment {
+  id         String   @id @default(cuid())
+  userId     String
+  locationId String
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user     User     @relation(fields: [userId], references: [id])
+  location Location @relation(fields: [locationId], references: [id])
+
+  @@unique([userId, locationId])
+  @@index([locationId])
+}
+
+model PHIAssignment {
+  id         String   @id @default(cuid())
+  userId     String
+  locationId String
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user     User     @relation(fields: [userId], references: [id])
+  location Location @relation(fields: [locationId], references: [id])
+
+  @@unique([userId, locationId])
+  @@index([locationId])
+}
+
+model DailyCleaningEvaluation {
+  id                  String           @id @default(cuid())
+  locationId          String
+  locationTaskId      String
+  evaluatingOfficerId String
+  evaluationDate      DateTime
+  occurrenceKey       String           @default("default")
+  result              EvaluationResult
+  remark              String?
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  finalizedAt         DateTime?
+  lockedAt            DateTime?
+
+  location          Location     @relation(fields: [locationId], references: [id])
+  locationTask      LocationTask @relation(fields: [locationTaskId], references: [id])
+  evaluatingOfficer User         @relation(fields: [evaluatingOfficerId], references: [id])
+
+  @@unique([locationTaskId, evaluationDate, occurrenceKey])
+  @@index([locationId])
+  @@index([evaluatingOfficerId])
+  @@index([evaluationDate])
+}
+
+model WorkerAttendance {
+  id               String           @id @default(cuid())
+  workerId         String
+  locationId       String
+  phiUserId        String
+  attendanceDate   DateTime
+  attendanceStatus AttendanceStatus
+  remark           String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  finalizedAt      DateTime?
+  lockedAt         DateTime?
+
+  worker   CleaningWorker @relation(fields: [workerId], references: [id])
+  location Location       @relation(fields: [locationId], references: [id])
+  phiUser  User           @relation(fields: [phiUserId], references: [id])
+
+  @@unique([workerId, locationId, attendanceDate])
+  @@index([locationId])
+  @@index([workerId])
+  @@index([attendanceDate])
+}
+
+model DailyAttendanceEvaluation {
+  id                String   @id @default(cuid())
+  locationId        String
+  phiUserId         String
+  attendanceDate    DateTime
+  totalPresentCount  Int
+  remark            String?
+  finalized         Boolean  @default(false)
+  finalizedAt       DateTime?
+  lockedAt          DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  location  Location @relation(fields: [locationId], references: [id])
+  phiUser   User     @relation(fields: [phiUserId], references: [id])
+
+  @@unique([locationId, attendanceDate])
+  @@index([locationId])
+  @@index([phiUserId])
+  @@index([attendanceDate])
+}
+
+model MonthlyEvaluationReport {
+  id              String       @id @default(cuid())
+  locationId      String
+  month           Int
+  year            Int
+  status          ReportStatus @default(DRAFT)
+  isComplete      Boolean      @default(true)
+  processingError String?
+  attendanceHistory Json?
+  generatedAt     DateTime?
+  submittedAt     DateTime?
+  resubmittedAt   DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  location              Location               @relation(fields: [locationId], references: [id])
+  taskSummaries         MonthlyTaskSummary[]
+  workerSummaries       MonthlyWorkerSummary[]
+  administrationReviews AdministrationReview[]
+  paymentRecommendation PaymentRecommendation?
+
+  @@unique([locationId, month, year])
+  @@index([month, year])
+  @@index([status])
+}
+
+model MonthlyTaskSummary {
+  id                      String    @id @default(cuid())
+  reportId                String
+  locationTaskId          String
+  taskNameSnapshot        String
+  categorySnapshot        TaskCategory
+  frequencySnapshot       TaskFrequency
+  allocatedAmount         Decimal   @db.Decimal(15, 2)
+  completionPercentage    Decimal   @db.Decimal(5, 2)
+  recommendedAmount       Decimal?  @db.Decimal(15, 2)
+  expectedOccurrences     Int       @default(0)
+  passedOccurrences       Int       @default(0)
+  failedOccurrences       Int       @default(0)
+  notApplicableOccurrences Int       @default(0)
+  missingOccurrences      Int       @default(0)
+  evaluationHistory       Json?
+  taskRemarks             Json?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  report           MonthlyEvaluationReport @relation(fields: [reportId], references: [id])
+  locationTask     LocationTask            @relation(fields: [locationTaskId], references: [id])
+  paymentCalculation PaymentTaskCalculation?
+
+  @@unique([reportId, locationTaskId])
+  @@index([locationTaskId])
+}
+
+model MonthlyWorkerSummary {
+  id                           String    @id @default(cuid())
+  reportId                     String
+  workerId                     String
+  workerLocationAssignmentId    String
+  workerNameSnapshot           String
+  allocatedAmount              Decimal   @db.Decimal(15, 2)
+  recommendedAmount            Decimal   @db.Decimal(15, 2)
+  attendancePercentage         Decimal   @db.Decimal(5, 2)
+  applicableWorkingDays        Int
+  presentWorkingDays           Int       @default(0)
+  absentWorkingDays            Int       @default(0)
+  missingAttendanceOccurrences Int       @default(0)
+  attendanceHistory            Json?
+  createdAt                    DateTime  @default(now())
+  updatedAt                    DateTime  @updatedAt
+
+  report                  MonthlyEvaluationReport  @relation(fields: [reportId], references: [id])
+  worker                  CleaningWorker           @relation(fields: [workerId], references: [id])
+  workerLocationAssignment WorkerLocationAssignment @relation(fields: [workerLocationAssignmentId], references: [id])
+  paymentCalculation      PaymentWorkerCalculation?
+
+  @@unique([reportId, workerId])
+  @@index([workerLocationAssignmentId])
+}
+
+model AdministrationReview {
+  id         String                 @id @default(cuid())
+  reportId   String
+  reviewerId String
+  decision   AdministrationDecision
+  remarks    String?
+  reviewedAt DateTime               @default(now())
+  createdAt  DateTime               @default(now())
+  updatedAt  DateTime               @updatedAt
+
+  report   MonthlyEvaluationReport @relation(fields: [reportId], references: [id])
+  reviewer User                    @relation(fields: [reviewerId], references: [id])
+
+  @@index([reportId])
+  @@index([reviewerId])
+  @@index([decision])
+}
+
+model PaymentRecommendation {
+  id                         String                      @id @default(cuid())
+  reportId                   String                      @unique
+  createdByUserId            String
+  status                     PaymentRecommendationStatus @default(DRAFT)
+  version                    Int                         @default(1)
+  locationCleaningTotal      Decimal                     @db.Decimal(15, 2)
+  locationAttendanceTotal    Decimal                     @db.Decimal(15, 2)
+  locationGrandTotal         Decimal                     @db.Decimal(15, 2)
+  overallRecommendedPayment  Decimal                     @db.Decimal(15, 2)
+  sentToVcAt                 DateTime?
+  submittedByUserId          String?
+  remarks                    String?
+  finalizedAt                DateTime?
+  finalizedByUserId          String?
+  finalizationRemarks        String?
+  createdAt                  DateTime                    @default(now())
+  updatedAt                  DateTime                    @updatedAt
+
+  report             MonthlyEvaluationReport @relation(fields: [reportId], references: [id])
+  createdBy          User                    @relation(fields: [createdByUserId], references: [id])
+  submittedBy        User?                   @relation("PaymentRecommendationSubmitter", fields: [submittedByUserId], references: [id])
+  finalizedBy        User?                   @relation("PaymentRecommendationFinalizer", fields: [finalizedByUserId], references: [id])
+  taskCalculations   PaymentTaskCalculation[]
+  workerCalculations PaymentWorkerCalculation[]
+  additionalTasks    AdditionalCleaningTask[]
+  vcApprovals        VCApproval[]
+
+  @@index([status])
+  @@index([createdByUserId])
+  @@index([finalizedByUserId])
+}
+
+model PaymentTaskCalculation {
+  id                   String               @id @default(cuid())
+  recommendationId     String
+  monthlyTaskSummaryId String               @unique
+  locationTaskId       String
+  originalAmount       Decimal              @db.Decimal(15, 2)
+  recommendationAmount Decimal              @db.Decimal(15, 2)
+  completionPercentage Decimal              @db.Decimal(5, 2)
+  recommendedAmount    Decimal              @db.Decimal(15, 2)
+  changedById          String?
+  changedAt            DateTime?
+  changeReason         String?
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+
+  recommendation      PaymentRecommendation @relation(fields: [recommendationId], references: [id])
+  monthlyTaskSummary   MonthlyTaskSummary    @relation(fields: [monthlyTaskSummaryId], references: [id])
+  locationTask         LocationTask          @relation(fields: [locationTaskId], references: [id])
+  changedBy            User?                @relation(fields: [changedById], references: [id])
+
+  @@unique([recommendationId, locationTaskId])
+  @@index([locationTaskId])
+  @@index([changedById])
+}
+
+model PaymentWorkerCalculation {
+  id                        String               @id @default(cuid())
+  recommendationId          String
+  monthlyWorkerSummaryId    String               @unique
+  workerId                  String
+  workerLocationAssignmentId String
+  originalAmount            Decimal              @db.Decimal(15, 2)
+  recommendationAmount      Decimal              @db.Decimal(15, 2)
+  attendancePercentage      Decimal              @db.Decimal(5, 2)
+  recommendedAmount         Decimal              @db.Decimal(15, 2)
+  changedById               String?
+  changedAt                 DateTime?
+  changeReason              String?
+  createdAt                 DateTime             @default(now())
+  updatedAt                 DateTime             @updatedAt
+
+  recommendation           PaymentRecommendation    @relation(fields: [recommendationId], references: [id])
+  monthlyWorkerSummary     MonthlyWorkerSummary     @relation(fields: [monthlyWorkerSummaryId], references: [id])
+  worker                   CleaningWorker           @relation(fields: [workerId], references: [id])
+  workerLocationAssignment WorkerLocationAssignment @relation(fields: [workerLocationAssignmentId], references: [id])
+  changedBy                User?                    @relation(fields: [changedById], references: [id])
+
+  @@unique([recommendationId, workerId])
+  @@index([workerLocationAssignmentId])
+  @@index([changedById])
+}
+
+model AdditionalCleaningTask {
+  id                   String               @id @default(cuid())
+  recommendationId     String
+  locationId           String
+  taskName             String
+  category             TaskCategory
+  allocatedAmount      Decimal              @db.Decimal(15, 2)
+  completionPercentage Decimal              @db.Decimal(5, 2)
+  recommendedAmount    Decimal              @db.Decimal(15, 2)
+  remark               String?
+  isAdditional         Boolean              @default(true)
+  createdByUserId      String?
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+
+  recommendation       PaymentRecommendation @relation(fields: [recommendationId], references: [id])
+  location             Location              @relation(fields: [locationId], references: [id])
+  createdBy            User?                 @relation(fields: [createdByUserId], references: [id])
+
+  @@index([recommendationId])
+  @@index([locationId])
+}
+
+model VCApproval {
+  id               String                @id @default(cuid())
+  recommendationId String
+  vcUserId         String
+  decision         VCDecision
+  remarks          String?
+  decidedAt        DateTime              @default(now())
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+
+  recommendation   PaymentRecommendation @relation(fields: [recommendationId], references: [id])
+  vcUser           User                  @relation(fields: [vcUserId], references: [id])
+
+  @@index([recommendationId])
+  @@index([vcUserId])
+  @@index([decision])
+}
+
+model ActivityLog {
+  id          String         @id @default(cuid())
+  userId      String
+  action      ActivityAction
+  entityType  String
+  entityId    String
+  timestamp   DateTime       @default(now())
+  description String?
+  metadata    Json?
+
+  user        User           @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([action])
+  @@index([entityType, entityId])
+  @@index([timestamp])
+}
+
+model Notification {
+  id             String             @id @default(cuid())
+  recipientUserId String
+  event          NotificationEvent
+  title          String
+  message        String
+  entityType     String
+  entityId       String
+  dedupeKey      String?            @unique
+  readAt         DateTime?
+  createdAt      DateTime           @default(now())
+  metadata       Json?
+
+  recipient      User               @relation(fields: [recipientUserId], references: [id])
+
+  @@index([recipientUserId, readAt])
+  @@index([event])
+  @@index([entityType, entityId])
+}

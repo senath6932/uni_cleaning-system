@@ -1,0 +1,2 @@
+"use client";
+export default function Error({ reset }: { reset: () => void }) { return <main className="flex min-h-screen items-center justify-center bg-slate-50 p-6"><div className="rounded-3xl border border-red-200 bg-red-50 p-8"><h1 className="text-2xl font-semibold text-red-950">Unable to load monthly reports.</h1><p className="mt-2 text-sm text-red-800">Please try again.</p><button onClick={reset} className="mt-5 rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white">Try again</button></div></main>; }

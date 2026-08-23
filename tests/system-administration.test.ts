@@ -1,0 +1,10 @@
+import { describe, expect, it, vi } from "vitest";
+import { getAuditLog, listAuditLogs, markNotificationRead, runSystemIntegrityChecks } from "@/lib/system-administration";
+
+const gaa = { id: "gaa-1", role: "GAA" as const, active: true };
+describe("system administration controls", () => {
+  it("rejects non-GAA quality-control access", async () => { await expect(listAuditLogs({} as never, { ...gaa, role: "PHI" }, {})).rejects.toMatchObject({ status: 403 }); });
+  it("keeps audit records read-only by exposing only reads", async () => { const prisma = { activityLog: { findUnique: vi.fn(async () => ({ id: "audit-1" })), count: vi.fn(async () => 1), findMany: vi.fn(async () => []) } }; await expect(getAuditLog(prisma as never, gaa, "audit-1")).resolves.toMatchObject({ id: "audit-1" }); expect(prisma.activityLog).not.toHaveProperty("update"); expect(prisma.activityLog).not.toHaveProperty("delete"); });
+  it("prevents marking another user's notification as read", async () => { const prisma = { notification: { updateMany: vi.fn(async () => ({ count: 0 })) } }; await expect(markNotificationRead(prisma as never, gaa, "other-notification")).rejects.toMatchObject({ status: 404 }); });
+  it("reports missing assignments as warnings without modifying data", async () => { const prisma = { location: { findMany: vi.fn(async () => [{ id: "location-1", name: "Science", locationTasks: [] }]) }, cleaningTask: { findMany: vi.fn(async () => []) }, evaluatingOfficerAssignment: { findMany: vi.fn(async () => []) }, monthlyEvaluationReport: { findMany: vi.fn(async () => []) }, paymentRecommendation: { findMany: vi.fn(async () => []) }, dailyAttendanceEvaluation: { findMany: vi.fn(async () => []) }, dailyCleaningEvaluation: { findMany: vi.fn(async () => []) }, user: { findMany: vi.fn(async () => []) } }; const result = await runSystemIntegrityChecks(prisma as never, gaa); expect(result.status).toBe("WARNING"); expect(result.issues.map((issue) => issue.type)).toContain("Missing Task Assignment"); });
+});
