@@ -51,6 +51,15 @@ enum ReportStatus {
   CLARIFICATION_REQUESTED
 }
 
+enum PhiMonthlyAttendanceCategory {
+  HALF_DAY_EMPLOYEES
+  HALF_DAY_GRASS_CUTTERS_GULLY_CLEANER_TRACTOR_OPERATOR
+  HALF_DAY_SUPERVISORS
+  ABSENT_EMPLOYEES
+  ABSENT_GRASS_CUTTERS_GULLY_CLEANER_TRACTOR_OPERATOR
+  ABSENT_SUPERVISORS
+}
+
 enum AdministrationDecision {
   APPROVE
   CORRECTION
@@ -153,6 +162,8 @@ model User {
   evaluations                  DailyCleaningEvaluation[]
   attendances                  WorkerAttendance[]
   dailyAttendanceEvaluations    DailyAttendanceEvaluation[]
+  phiMonthlyAttendanceReports   PhiMonthlyAttendanceReport[]
+  phiMonthlyAttendanceReviews   PhiMonthlyAttendanceReview[]
   administrationReviews        AdministrationReview[]
   createdRecommendations       PaymentRecommendation[]
   submittedRecommendations     PaymentRecommendation[] @relation("PaymentRecommendationSubmitter")
@@ -373,6 +384,64 @@ model MonthlyEvaluationReport {
   @@unique([locationId, month, year])
   @@index([month, year])
   @@index([status])
+}
+
+model PhiMonthlyAttendanceReport {
+  id              String       @id @default(cuid())
+  phiUserId       String
+  month           Int
+  year            Int
+  status          ReportStatus @default(DRAFT)
+  processingError String?
+  grandTotal      Decimal      @db.Decimal(15, 2) @default(0)
+  generatedAt     DateTime?
+  submittedAt     DateTime?
+  resubmittedAt   DateTime?
+  finalizedAt     DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  phiUser         User                           @relation(fields: [phiUserId], references: [id])
+  rows            PhiMonthlyAttendanceSummary[]
+  reviews         PhiMonthlyAttendanceReview[]
+
+  @@unique([phiUserId, month, year])
+  @@index([month, year])
+  @@index([status])
+}
+
+model PhiMonthlyAttendanceSummary {
+  id            String                         @id @default(cuid())
+  reportId      String
+  category      PhiMonthlyAttendanceCategory
+  employeeCount Int
+  deductionRate Decimal                        @db.Decimal(15, 2)
+  rowTotal      Decimal                        @db.Decimal(15, 2)
+  createdAt     DateTime                       @default(now())
+  updatedAt     DateTime                       @updatedAt
+
+  report        PhiMonthlyAttendanceReport      @relation(fields: [reportId], references: [id])
+
+  @@unique([reportId, category])
+  @@index([reportId])
+}
+
+model PhiMonthlyAttendanceReview {
+  id         String                 @id @default(cuid())
+  reportId   String
+  reviewerId String
+  decision   AdministrationDecision
+  remarks    String?
+  reviewedAt DateTime               @default(now())
+  createdAt  DateTime               @default(now())
+  updatedAt  DateTime               @updatedAt
+
+  report   PhiMonthlyAttendanceReport @relation(fields: [reportId], references: [id])
+  reviewer User                      @relation(fields: [reviewerId], references: [id])
+
+  @@index([reportId])
+  @@index([reviewerId])
+  @@index([decision])
 }
 
 model MonthlyTaskSummary {

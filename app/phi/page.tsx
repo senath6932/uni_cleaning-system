@@ -53,6 +53,12 @@ export default async function PhiPage() {
                 Open Monitoring
               </Link>
               <Link
+                href="/phi/monthly-attendance"
+                className="rounded-2xl border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              >
+                Monthly Attendance
+              </Link>
+              <Link
                 href="/phi/attendance-history"
                 className="rounded-2xl border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
               >

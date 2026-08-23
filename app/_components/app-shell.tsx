@@ -73,7 +73,10 @@ const navByRole: Record<UserRole, NavSection[]> = {
     },
     {
       title: "Monitoring",
-      items: [{ href: "/daily-monitoring", label: "Daily Attendance" }],
+      items: [
+        { href: "/daily-monitoring", label: "Daily Attendance" },
+        { href: "/phi/monthly-attendance", label: "Monthly Attendance" },
+      ],
     },
     {
       title: "History",
