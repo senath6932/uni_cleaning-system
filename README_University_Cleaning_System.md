@@ -2,177 +2,141 @@
 
 <img src="UniLogo.png" alt="University Logo" width="120" />
 
-# University Cleaning Management System
+# 🏫 University Cleaning Management System
 
-### A Centralized Platform for University Cleaning Operations
+### A Role-Based Web Application for Managing University Cleaning Operations
 
-A role-based web application designed to manage university cleaning locations, daily evaluations, worker attendance, monthly reports, and payment approvals.
+A centralized platform for managing cleaning locations, daily evaluations, worker attendance, monthly performance reports, and payment approvals.
 
-[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16.3.1-black?logo=next.js)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
-[![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?logo=prisma)](https://www.prisma.io/)
+[![Prisma](https://img.shields.io/badge/Prisma-7.9.1-2D3748?logo=prisma)](https://www.prisma.io/)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL_&_Auth-3ECF8E?logo=supabase)](https://supabase.com/)
 
-**Live Demo:** https://uni-cleaning-system.vercel.app/
+**🌐 Live Application:** [uni-cleaning-system.vercel.app](https://uni-cleaning-system.vercel.app/)
 
 </div>
 
 ---
 
-## 📌 About the Project
+## 📖 Table of Contents
 
-The **University Cleaning Management System** is developed to digitize and simplify the management of cleaning operations within a university environment.
+1. [Overview](#-overview)
+2. [Features](#-features)
+3. [Built With](#-built-with)
+4. [Installation & Setup](#-installation--setup)
+5. [UI Screenshots](#-ui-screenshots)
+6. [Database Design](#-database-design)
+7. [Testing](#-testing)
+8. [Future Enhancements](#-future-enhancements)
+9. [License](#-license)
 
-The system provides a centralized platform where administrative staff can manage cleaning locations, tasks, workers, and assignments. Evaluating Officers and PHI staff can record daily cleaning evaluations and worker attendance, while administrative officers can review monthly reports and process payment recommendations.
+---
 
-The application follows a role-based workflow to ensure that each user can access the functions relevant to their responsibilities.
+## 📖 Overview
 
-## ✨ Key Features
+The **University Cleaning Management System** is a web-based application developed to digitize and streamline cleaning operations within a university environment.
 
-### 1. User and Role Management
-- User creation and account management.
-- Role assignment and role-based access control.
-- Account activation and deactivation.
-- Separate dashboards and permissions for each role.
+The system provides a centralized platform to manage university cleaning locations, cleaning tasks, staff assignments, daily cleaning evaluations, and worker attendance. It also supports monthly performance reporting and a structured payment approval workflow.
 
-### 2. Location and Cleaning Task Management
-- Manage university cleaning locations.
-- Create cleaning tasks with daily, weekly, and monthly frequencies.
-- Assign tasks to relevant locations.
-- Configure task amounts and additional cleaning tasks.
-- Allocate cleaning workers and responsible officers to locations.
+The application provides dedicated access for five user roles: General Administrative Assistant (GAA), Evaluating Officer, PHI, Administration Officer, and Vice Chancellor. Each role is provided with functions relevant to its responsibilities, helping maintain an organized and traceable cleaning management process.
 
-### 3. Daily Cleaning Evaluation
-- Record cleaning quality as Pass, Fail, or Not Applicable.
-- Add remarks to daily evaluations.
-- View evaluation records for assigned locations.
-- Finalize daily evaluation records.
+---
 
-### 4. Worker Attendance Monitoring
+## ✨ Features
+
+### 🔑 User & Role Management
+
+- User authentication using Supabase Auth.
+- Five role-based user categories.
+- Create and manage user accounts.
+- Assign and update user roles.
+- Activate or deactivate user accounts.
+- Role-based access control for application functions.
+
+### 🏢 Location & Cleaning Task Management
+
+- Create and manage university cleaning locations.
+- Set minimum worker requirements for locations.
+- Define cleaning tasks with daily, weekly, and monthly frequencies.
+- Assign cleaning tasks to specific locations.
+- Configure allocated amounts for location-task assignments.
+- Add additional cleaning tasks when required.
+- Manage cleaning worker and officer assignments.
+
+### 🧹 Daily Cleaning Evaluation
+
+- Record daily cleaning quality evaluations.
+- Evaluation results: Pass, Fail, and Not Applicable.
+- Add remarks and feedback to evaluations.
+- Support multiple task occurrences within a day.
+- View evaluation history for assigned locations.
+- Finalize and lock evaluation records.
+
+### 👷 Worker Attendance Monitoring
+
 - Record worker attendance as Present or Absent.
-- Monitor attendance for assigned locations.
-- Maintain attendance history.
-- Finalize attendance records for monthly reporting.
+- Add attendance remarks.
+- Monitor attendance at authorized locations.
+- Maintain daily attendance records and history.
+- Finalize and lock attendance records.
+- Aggregate attendance information for monthly reports.
 
-### 5. Monthly Reports and Payment Workflow
-- Generate monthly location-based reports.
-- Summarize cleaning task evaluations and worker attendance.
-- Calculate performance percentages and payment recommendations.
-- Review reports and request corrections.
-- Support final payment recommendation decisions.
+### 📊 Monthly Reports & Performance Analysis
 
-### 6. Notifications and Audit Logs
-- Notify users about report submissions and review decisions.
+- Generate monthly evaluation reports for each location.
+- Summarize daily cleaning evaluation results.
+- Calculate expected, passed, failed, and not-applicable occurrences.
+- Calculate task completion percentages.
+- Generate worker attendance summaries.
+- Calculate allocated and recommended payment amounts.
+
+### 💳 Payment Recommendation & Approval
+
+- Review monthly reports through the Administration Officer dashboard.
+- Approve, reject, or request corrections to reports.
+- Generate payment recommendations based on performance.
+- Modify payment calculations with recorded reasons.
+- Submit payment recommendations for final review.
+- Allow the Vice Chancellor to approve, reject, or request clarification.
+- Maintain approval history.
+
+### 🔔 Notifications & Activity History
+
+- Generate notifications for report submissions and approval events.
+- Notify users about approval, rejection, correction, and clarification requests.
 - Track notification read status.
-- Maintain activity records for important system operations.
+- Maintain activity logs for important system operations.
+- Record timestamps and relevant changes for audit purposes.
 
-### 7. Report Generation
-- Generate PDF reports.
-- Export report information to Excel.
-- Present monthly performance and payment-related summaries.
+---
 
-## 👥 User Roles
+## 🛠 Built With
 
-| User Role | Main Responsibilities |
-|---|---|
-| **GAA – General Administrative Assistant** | Manage users, locations, cleaning tasks, and staff assignments. |
-| **Evaluating Officer** | Evaluate cleaning quality at assigned university locations. |
-| **PHI** | Monitor and record worker attendance at authorized locations. |
-| **Administration Officer** | Review monthly reports, request corrections, and process payment recommendations. |
-| **Vice Chancellor** | Review and make final decisions on payment recommendations. |
-
-## 🏗️ System Architecture
-
-The application uses a Next.js-based web interface, Supabase services for authentication and PostgreSQL database hosting, and Prisma ORM for database access.
-
-```mermaid
-flowchart TD
-    U[System Users] --> UI[Next.js Web Application]
-    UI --> AUTH[Supabase Authentication]
-    UI --> API[Application Pages and API Routes]
-    API --> PRISMA[Prisma ORM]
-    PRISMA --> DB[(PostgreSQL Database)]
-    API --> REPORTS[PDF and Excel Report Generation]
-    API --> NOTIFY[Notifications and Activity Logs]
-```
-
-### Main Architecture Components
-
-- **Frontend:** Next.js, React, TypeScript, and Tailwind CSS provide the user interface.
-- **Authentication:** Supabase Auth manages user authentication.
-- **Database:** PostgreSQL stores user, location, task, monitoring, reporting, and workflow information.
-- **ORM:** Prisma provides structured database access.
-- **Reporting:** PDFKit and ExcelJS support report exports.
-
-## 🔄 System Workflow
-
-```mermaid
-flowchart TD
-    A[GAA: Configure Users, Locations and Tasks] --> B[Assign Workers and Responsible Officers]
-    B --> C[Daily Cleaning Monitoring]
-    C --> D[Cleaning Evaluation by Evaluating Officer]
-    C --> E[Attendance Recording by PHI]
-    D --> F[Monthly Report Generation]
-    E --> F
-    F --> G[Administration Officer Review]
-    G --> H{Review Result}
-    H -->|Correction Required| C
-    H -->|Ready for Decision| I[Vice Chancellor Review]
-    I --> J[Final Payment Recommendation Decision]
-```
-
-1. **System setup:** GAA configures users, locations, tasks, and assignments.
-2. **Daily operations:** Evaluating Officers record cleaning quality, while PHI staff record worker attendance.
-3. **Report preparation:** Daily records are consolidated into monthly reports.
-4. **Administrative review:** The Administration Officer reviews submitted reports and requests corrections when necessary.
-5. **Final decision:** The Vice Chancellor reviews the payment recommendation and records the decision.
-
-## 🛠️ Technology Stack
+The project is developed using the following technologies:
 
 | Technology | Purpose |
 |---|---|
-| Next.js 16 | Full-stack web application framework |
-| React 19 | User interface library |
-| TypeScript 5 | Application programming language |
-| Tailwind CSS 4 | Responsive UI styling |
-| Supabase Auth | User authentication |
-| Supabase PostgreSQL | Database hosting |
-| Prisma ORM 7 | Database access and schema management |
-| PDFKit | PDF report generation |
-| ExcelJS | Excel report generation |
-| Vitest | Automated testing |
-| ESLint | Code quality and linting |
-| Vercel | Application deployment |
+| **Next.js 16.3.1** | Full-stack web application framework |
+| **React 19** | Building the user interface |
+| **TypeScript 5** | Application development with static typing |
+| **Tailwind CSS 4** | UI styling |
+| **Supabase Auth** | User authentication and session management |
+| **PostgreSQL (Supabase)** | Relational database |
+| **Prisma ORM 7.9.1** | Database access and schema management |
+| **PDFKit** | PDF report generation |
+| **ExcelJS** | Excel report generation |
+| **Vitest 4.1.10** | Automated testing |
+| **ESLint 9** | Code quality and linting |
+| **Vercel** | Application deployment |
 
-## 📂 Project Structure
+---
 
-```text
-uni_cleaning-system/
-│
-├── app/                    # Next.js application pages and API routes
-├── lib/                    # Shared logic, authentication, and utilities
-├── prisma/                 # Prisma schema, migrations, and seed files
-├── public/                 # Static assets and public resources
-├── tests/                  # Automated test files
-├── .agents/                # Project agent skills
-│
-├── LOGIN_SETUP_GUIDE.md    # Authentication and initial user setup
-├── PROJECT_BUILD_SUMMARY.md
-├── package.json            # Dependencies and scripts
-├── prisma.config.ts        # Prisma configuration
-└── README.md
-```
+## ⚙️ Installation & Setup
 
-## ⚙️ Installation and Setup
-
-### Prerequisites
-
-- Node.js
-- npm
-- A Supabase project
-- A PostgreSQL database configured through Supabase
+Follow these steps to run the project locally.
 
 ### 1. Clone the Repository
 
@@ -189,70 +153,181 @@ npm install
 
 ### 3. Configure Environment Variables
 
-Create a `.env` file in the project root:
+Create a `.env` file in the project root and configure the database connection and Supabase credentials.
 
 ```env
-DATABASE_URL="your-supabase-pooled-database-url"
-DIRECT_URL="your-supabase-direct-database-url"
+DATABASE_URL="your_supabase_pooled_database_url"
+DIRECT_URL="your_supabase_direct_database_url"
 
-NEXT_PUBLIC_SUPABASE_URL="your-supabase-project-url"
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="your-supabase-publishable-key"
-
-SUPABASE_SERVICE_ROLE_KEY="your-supabase-service-role-key"
+NEXT_PUBLIC_SUPABASE_URL="your_supabase_project_url"
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="your_supabase_publishable_key"
+SUPABASE_SERVICE_ROLE_KEY="your_supabase_service_role_key"
 ```
 
-> **Security:** Replace the example values with your own Supabase project credentials. Never commit your `.env` file or expose the service-role key in client-side code.
+> **Important:** Replace the example values with credentials from your own Supabase project. Keep the `.env` file private. Never commit database credentials or expose the Supabase service-role key in client-side code.
 
 ### 4. Set Up the Database
+
+Apply the existing Prisma migrations and generate the Prisma Client:
 
 ```bash
 npx prisma migrate deploy
 npx prisma generate
 ```
 
-### 5. Run the Development Server
+### 5. Start the Development Server
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to access the application.
+### 6. Open the Application
 
-For initial authentication and account setup, refer to [`LOGIN_SETUP_GUIDE.md`](./LOGIN_SETUP_GUIDE.md).
+Open the following address in your browser:
+
+```text
+http://localhost:3000
+```
+
+For authentication and initial account setup instructions, refer to [`LOGIN_SETUP_GUIDE.md`](./LOGIN_SETUP_GUIDE.md).
+
+### Available Commands
+
+```bash
+npm run dev       # Start the development server
+npm run build     # Generate Prisma Client and build the application
+npm run start     # Start the production server
+npm run lint      # Run ESLint
+npm run test      # Run Vitest tests
+npm run seed      # Run the Prisma seed script
+```
+
+---
+
+## 🖼 UI Screenshots
+
+The application includes role-specific dashboards and pages for managing university cleaning operations.
+
+Add screenshots of the running application in this section to give visitors a visual overview of the interface.
+
+Suggested screenshots:
+
+### 1️⃣ Login Page
+
+*User authentication and access to the system.*
+
+<!-- Add screenshot: ![Login Page](screenshots/login.png) -->
+
+### 2️⃣ GAA Dashboard
+
+*User, location, task, and assignment management.*
+
+<!-- Add screenshot: ![GAA Dashboard](screenshots/gaa-dashboard.png) -->
+
+### 3️⃣ Daily Monitoring
+
+*Daily cleaning evaluation and worker attendance recording.*
+
+<!-- Add screenshot: ![Daily Monitoring](screenshots/daily-monitoring.png) -->
+
+### 4️⃣ Monthly Reports
+
+*Monthly cleaning performance summaries and report review.*
+
+<!-- Add screenshot: ![Monthly Reports](screenshots/monthly-reports.png) -->
+
+### 5️⃣ Approval Dashboard
+
+*Payment recommendation review and approval workflow.*
+
+<!-- Add screenshot: ![Approval Dashboard](screenshots/approval-dashboard.png) -->
+
+---
+
+## 📊 Database Design
+
+The system uses **PostgreSQL** hosted through Supabase, with **Prisma ORM** for database schema management and data access.
+
+The database is organized around the following main entities:
+
+| Entity | Description |
+|---|---|
+| **User** | Stores user details, roles, and account status. |
+| **Location** | Stores university cleaning location information and minimum worker requirements. |
+| **CleaningTask** | Defines cleaning task categories and frequencies. |
+| **LocationTask** | Connects cleaning tasks to locations and stores allocated amounts. |
+| **CleaningWorker** | Stores cleaning worker information. |
+| **WorkerLocationAssignment** | Connects workers with assigned locations and allocated payment amounts. |
+| **EvaluatingOfficerAssignment** | Assigns evaluating officers to locations. |
+| **PHIAssignment** | Defines the locations monitored by PHI users. |
+| **DailyCleaningEvaluation** | Stores daily task evaluation results and remarks. |
+| **WorkerAttendance** | Stores worker attendance records. |
+| **DailyAttendanceEvaluation** | Stores daily attendance evaluation information. |
+| **MonthlyEvaluationReport** | Stores monthly reports and their workflow status. |
+| **MonthlyTaskSummary** | Stores task-level performance and payment summaries. |
+| **MonthlyWorkerSummary** | Stores worker-level attendance and payment summaries. |
+| **PaymentRecommendation** | Stores payment recommendation information. |
+| **AdministrationReview** | Stores Administration Officer review decisions and feedback. |
+| **VCApproval** | Stores Vice Chancellor approval decisions and feedback. |
+| **ActivityLog** | Maintains a record of important system activities. |
+| **Notification** | Stores user notifications and read status. |
+
+### 📌 Report Approval Workflow
+
+Monthly reports follow a defined status flow:
+
+```text
+DRAFT
+  ↓
+SUBMITTED
+  ↓
+ADMIN_APPROVED
+  ↓
+VC_APPROVED
+```
+
+The Administration Officer can approve, reject, or request corrections. The Vice Chancellor can approve, reject, or request clarification during the final review.
+
+---
 
 ## 🧪 Testing
 
-The project uses **Vitest** for automated testing of core application functionality, including user management, locations, cleaning tasks, assignments, monitoring, and role-based authorization.
+The project uses **Vitest** for automated unit testing.
 
-Run the test suite:
+The test suites cover the main business logic and application operations, including:
+
+- User creation, updates, role changes, and activation.
+- Location management and minimum worker requirements.
+- Cleaning task management.
+- Location-task assignments and allocated amounts.
+- Evaluating officer assignments.
+- Daily cleaning evaluation and monthly summary calculations.
+- PHI attendance monitoring and monthly attendance summaries.
+- Role-based task authorization.
+
+Run the test suite using:
 
 ```bash
 npm run test
 ```
 
-## 📜 Available Scripts
+---
 
-| Command | Description |
-|---|---|
-| `npm run dev` | Start the development server. |
-| `npm run build` | Generate Prisma Client and build the application. |
-| `npm run start` | Start the production server. |
-| `npm run lint` | Run ESLint. |
-| `npm run test` | Run automated tests. |
-| `npm run seed` | Run the database seed script. |
+## 🚀 Future Enhancements
 
-## 🚀 Deployment
+Possible future improvements include:
 
-The application is deployed using **Vercel**.
+- 📱 Develop a mobile-friendly companion application for field staff.
+- 📈 Introduce more advanced dashboards and performance analytics.
+- 📧 Add email notifications for important approval events.
+- 📍 Explore location-based monitoring for cleaning operations.
+- 📄 Improve report customization and export options.
 
-**Live Application:** https://uni-cleaning-system.vercel.app/
+---
 
-For a separate deployment, configure the required environment variables and Supabase database connection in the Vercel project settings.
+## 📜 License
 
-## 📖 Additional Documentation
-
-- [`PROJECT_BUILD_SUMMARY.md`](./PROJECT_BUILD_SUMMARY.md) – project modules, features, roles, and implementation details.
-- [`LOGIN_SETUP_GUIDE.md`](./LOGIN_SETUP_GUIDE.md) – authentication and initial account setup instructions.
+No license file is currently included in this repository. Please contact the repository owner for permission before using, modifying, or distributing this project.
 
 ---
 
@@ -260,6 +335,6 @@ For a separate deployment, configure the required environment variables and Supa
 
 **University Cleaning Management System**
 
-*Improving the coordination, monitoring, and accountability of university cleaning operations.*
+*Making university cleaning operations more organized, measurable, and accountable.*
 
 </div>
